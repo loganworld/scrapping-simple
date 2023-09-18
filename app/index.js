@@ -9,12 +9,10 @@ const request = async (pageNum) => {
     const baseurl = "https://stackoverflow.com/tags";
     const url = `${baseurl}?page=${pageNum}&tab=popular`;
     const res = await Axios.get(url);
-    console.log(res.data);
-    await saveFiles("test", res.data);
-    return res.data
+    await saveFiles("test" + pageNum, res.data);
 }
 const getTempData = () => {
-    const data = fs.readFileSync('./build/test', 'utf8');
+    const data = fs.readFileSync('./build/test2', 'utf8');
     // console.log(data);
     return data
 }
@@ -28,6 +26,7 @@ const analyze = (pageData) => {
     // console.log(.html());
     tagDoms.map((index, tagData) => {
         const tagDom = cheerio.load(tagData);
+        tagDom("div").children("div").children("div").children("a").children("img").remove()
         const tagName = tagDom("div").children("div").children("div").children("a").html();
         tagNames.push(tagName);
     })
@@ -36,10 +35,11 @@ const analyze = (pageData) => {
 }
 
 const main = async () => {
-    // var data = await request(1);
-    const pageData = getTempData();
-    const tagNames = analyze(pageData);
-    console.log(tagNames);
+    for (var i = 1; i < 1933; i++)
+        await request(i);
+    // const pageData = getTempData();
+    // const tagNames = analyze(pageData);
+    // console.log(tagNames);
 }
 
 main()
