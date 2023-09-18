@@ -11,5 +11,13 @@ const saveFiles = async (fileName, data) => {
     console.log("export file", fileName);
 };
 
+function delay(delayTimes) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(2);
+        }, delayTimes);
+    });
+}
 
-module.exports = { saveFiles }
+
+module.exports = { saveFiles, delay }
