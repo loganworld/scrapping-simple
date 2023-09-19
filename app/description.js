@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
 const Axios = require("axios");
+const fs = require('fs');
 const { saveFiles, delay } = require('./utils');
 const tagData = require("../build/tagNames-n.json");
 
@@ -26,21 +27,50 @@ const request = async (tagNames, id) => {
 
 }
 
-const analyze = async (pageData, pageNum) => {
+const getTempData = (tagId) => {
+    const data = fs.readFileSync('./build/tags/tagInfos' + tagId, 'utf8');
+    // console.log(data);
+    return data
+}
 
+const analyze = (pageData, tagNum) => {
+
+    const pageDom = cheerio.load(pageData);
+    pageDom(".fc-light").children("a").remove();
+    var desTag = pageDom(".fc-light").text();
+    desTag = desTag.replace(/^\s+|\s+$/g, "");
+    // console.log(desTag, tagNum);
+    return {
+        id: tagNum,
+        tagName: tagData[tagNum].tagName,
+        description: desTag
+    }
 }
 
 const getDes = async () => {
-    for (var i = 0; i < 69543;) {  //69543
-        var tagNames = []
-        for (var counter = 0; counter < requestPerSecond; counter++) {
-            tagNames.push(tagData[i].tagName)
-            i++;
-        }
-        await request(tagNames, i);
-        await delay(1000);
+    // for (var i = 65340; i < 65400;) {  //69543
+    //     var tagNames = []
+    //     for (var counter = 0; counter < requestPerSecond; counter++) {
+    //         tagNames.push(tagData[i].tagName)
+    //         i++;
+    //     }
+    //     await request(tagNames, i);
+    //     await delay(1000);
+    // }
+
+    var tagNames = []
+    for (var i = 0; i < 65340; i++) {
+        const pageData = getTempData(i);
+        const tagNameList = analyze(pageData, i);
+        tagNames.push(tagNameList);
+        if (i % 10000 == 0) console.log(tagNameList);
+        // console.log(tagNameList);
     }
-    console.log("getDes");
+    await saveFiles("tagNames-d.json", JSON.stringify(
+        tagNames,
+        undefined,
+        4
+    ));
 }
 
 module.exports = { getDes }
